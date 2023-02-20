@@ -425,11 +425,11 @@
                 var initTableJamKehadiran = function(data) {
                     let tmp = `
                         <tr>
-                            <td>Total Hari Kerja</td>
+                            <td>Total Jam Kerja</td>
                             <td class="text-end fw-bold">${data.total_jam_kerja ?? ''} / ${data.total_jam_kerja_saat_ini ?? ''}</td>
                         </tr>
                         <tr>
-                            <td>-+ Hari Kerja</td>
+                            <td>-+ Jam Kerja</td>
                             <td class="text-end fw-bold">${data.kurleb_jam_kerja ?? ''}</td>
                         </tr>
                     `;
