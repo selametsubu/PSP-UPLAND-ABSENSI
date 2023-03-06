@@ -255,6 +255,7 @@
                     // spotid
                     $("#spotid").select2({
                         placeholder: "Pilih Opsi",
+                        allowClear: true,
                         ajax: {
                             url: apiUrl + '/spot/select2',
                             dataType: 'json'

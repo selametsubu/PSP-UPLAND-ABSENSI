@@ -267,10 +267,9 @@
                         templateResult: filterOptionFormat
                     });
 
-                    $("#filter-bulan").val(moment().month() + 1)
+                    let monthValue = moment().month() + 1;
+                    $("#filter-bulan").val(monthValue < 10 ? "0" + monthValue : monthValue)
                     $("#filter-bulan, #filter-tahun").select2();
-
-
                 }
 
                 var handleFilter = function() {
