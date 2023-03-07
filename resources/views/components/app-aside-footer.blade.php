@@ -1,4 +1,17 @@
 <div class="aside-footer flex-column-auto px-6 px-lg-9" id="kt_aside_footer">
+    <div class="d-flex flex-stack ms-7">
+        <a href="{{ asset('UPLAND Absensi 2022 - 3. Pedoman Penggunaan.pdf') }}" target="blank"
+            class="btn btn-sm btn-icon btn-active-color-primary btn-icon-gray-600 btn-text-gray-600">
+            <!--begin::Svg Icon | path: icons/duotune/arrows/arr076.svg-->
+            <span class="me-2 fa fa-book fa-xl">
+
+            </span>
+            <!--end::Svg Icon-->
+            <!--begin::Major-->
+            <span class="fw-bold" >Panduan</span>
+            <!--end::Major-->
+        </a>
+    </div>
     <!--begin::User panel-->
     <div class="d-flex flex-stack ms-7">
         <!--begin::Link-->

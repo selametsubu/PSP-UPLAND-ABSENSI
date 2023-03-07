@@ -58,7 +58,7 @@
                                     <div class="ms-4">
                                         <h3 class="fs-5 fw-bold text-gray-900 mb-1">Taruh atau Klik untuk upload File
                                         </h3>
-                                        <span class="fs-7 fw-semibold text-gray-400">Maks 1 File</span>
+                                        <span class="fs-7 fw-semibold text-gray-400">Maks 1 File dengan tipe: jpg, png, pdf</span>
                                     </div>
                                     <!--end::Info-->
                                 </div>
