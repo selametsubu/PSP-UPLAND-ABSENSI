@@ -36,8 +36,11 @@ class AbsenIzinController extends Controller
 
     public function checkIzinCuti()
     {
-        $data = AbsenIzin::whereDate('tgl_dari', '<=', Carbon::now()->toDate())->whereDate('tgl_sampai', '>=', Carbon::now()->toDate())
+        $data = AbsenIzin::whereDate('tgl_dari', '<=', Carbon::now()->toDate())
+            ->leftJoin('v_absen_ref_jenis_izin', 'v_absen_ref_jenis_izin.jenis_izin', '=', 'absen_izin.jenis_izin')
+            ->whereDate('tgl_sampai', '>=', Carbon::now()->toDate())
             ->where('userid', request('userid'))
+            ->where('is_absen_datang_allowed', 0)
             ->firstOrFail();
         return response()->json($data);
     }
