@@ -16,8 +16,10 @@ class AbsenDatangController extends Controller
     {
         return view('absen-datang.success');
     }
+
     public function error()
     {
         return view('absen-datang.error');
     }
+
 }

@@ -107,4 +107,7 @@ Route::get('/download_file', function () {
     }
 })->name('download_file');
 
+Route::get('/absen-manual', [AbsenHistoriController::class, 'absenManual'])->middleware(['auth', 'verified'])->name('absen.manual');
+Route::get('/absen-manual/{userid}/{tgl}/edit', [AbsenHistoriController::class, 'absenManualEdit'])->middleware(['auth', 'verified'])->name('absen.manual.edit');
+
 require __DIR__ . '/auth.php';

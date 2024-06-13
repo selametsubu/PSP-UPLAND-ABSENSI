@@ -37,10 +37,12 @@
         <!--begin::Page-->
         <div class="page d-flex flex-row flex-column-fluid">
             <!--begin::Aside-->
+            @if (!isset($hide_sidebar))
             <x-app-aside></x-app-aside>
+            @endif
             <!--end::Aside-->
             <!--begin::Wrapper-->
-            <div class="wrapper d-flex flex-column flex-row-fluid" id="kt_wrapper">
+            <div class="{{!isset($hide_sidebar) ? 'wrapper' : ''}} d-flex flex-column flex-row-fluid" id="kt_wrapper">
                 <!--begin::Header-->
                 <div id="kt_header" class="header">
                     <!--begin::Container-->

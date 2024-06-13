@@ -29,10 +29,9 @@
 <!--end::jquery validation-->
 <!--end::Javascript-->
 
-<script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBHatAf0FiABgQeJa0TUsffRBUmohRCGv0&libraries=drawing&v=weekly"
-    defer>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtp8o84MOfUCMqPmz1JVvsxhDta3jyEYY&libraries=drawing&v=weekly">
 </script>
+
 <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
 
 <script src="{{ asset('js/general.helper.js') }}"></script>

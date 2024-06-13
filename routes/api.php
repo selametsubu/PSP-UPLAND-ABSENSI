@@ -88,3 +88,7 @@ Route::get('/izin/ref-jenis', [AbsenIzinController::class, 'refJenisIzin']);
 Route::post('/izin/upload-dok', [AbsenIzinController::class, 'uploadDokumen']);
 Route::delete('/izin/{izin}/destroy-dok', [AbsenIzinController::class, 'destroyDok']);
 Route::apiResource('/izin', AbsenIzinController::class);
+
+// absen manual
+Route::get('/absen-manual/dt', [AbsenHadirController::class, 'absenManual']);
+Route::post('/absen-manual', [AbsenHadirController::class, 'absenManualStore']);
