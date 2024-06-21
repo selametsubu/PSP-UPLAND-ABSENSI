@@ -1,7 +1,7 @@
 <x-app-full-layout>
     <x-slot name="page_title">Absen Manual</x-slot>
     <x-slot name="hide_sidebar"></x-slot>
-
+{{-- @dd($data) --}}
     <form id="app-form">
         <div class="d-none">
             <input type="text" name="created_by" value="{{ auth()->id() }}">
@@ -29,8 +29,9 @@
                 <div class="col-md-6">
                     <div class="font-weight-bold text-warning mb-5">Datang</div>
                     @php
-                        $datang = \Carbon\Carbon::parse($data->tgl." ".$data->absen_datang)->format('h:i');
-                        $pulang = \Carbon\Carbon::parse($data->tgl." ".$data->absen_pulang)->format('h:i');
+                        $datang = \Carbon\Carbon::parse($data->tgl." ".$data->absen_datang)->format('H:i');
+                        $pulang = \Carbon\Carbon::parse($data->tgl." ".$data->absen_pulang)->format('H:i');
+                        $aktifitas = explode(", ",$data->aktifitas);
                     @endphp
                     <div class="fv-row mb-5">
                         <x-app-label class="required">Jam</x-app-label>
@@ -39,7 +40,7 @@
 
                     <div class="fv-row mb-5">
                         <x-app-label>Aktifitas/Catatan</x-app-label>
-                        <textarea name="catatan_datang" id="catatan_datang" rows="3" class="form-control">{{ $data->aktifitas }}</textarea>
+                        <textarea name="catatan_datang" id="catatan_datang" rows="3" class="form-control">{{ $aktifitas[0] ?? '' }}</textarea>
                     </div>
 
                     <div class="fv-row mb-5">
@@ -67,7 +68,10 @@
                             <div class="d-block  ">
                                 <div class="image-input image-input-empty image-input-outline" data-kt-image-input="true">
                                     <!--begin::Preview existing avatar-->
-                                    <div class="image-input-wrapper w-200px h-200px border-1 border-secondary form-control">
+                                    <div class="image-input-wrapper datang w-200px h-200px border-1 border-secondary form-control">
+                                        @if ($data->swafoto_thumb_datang)
+                                            <img src="{{asset('storage/'.$data->swafoto_thumb_datang)}}" width="100%" alt="">
+                                        @endif
                                     </div>
                                     <!--end::Preview existing avatar-->
                                     <!--begin::Label-->
@@ -101,7 +105,7 @@
 
                     <div class="fv-row mb-5">
                         <x-app-label>Aktifitas/Catatan</x-app-label>
-                        <textarea name="catatan_pulang" id="catatan_pulang" rows="3" class="form-control">{{ $data->aktifitas }}</textarea>
+                        <textarea name="catatan_pulang" id="catatan_pulang" rows="3" class="form-control">{{ $aktifitas[1] ?? '' }}</textarea>
                     </div>
 
                     <div class="fv-row mb-5">
@@ -129,10 +133,10 @@
                             <div class="d-block  ">
                                 <div class="image-input image-input-empty image-input-outline" data-kt-image-input="true">
                                     <!--begin::Preview existing avatar-->
-                                    <div class="image-input-wrapper w-200px h-200px border-1 border-secondary form-control">
-                                        {{-- @if ($data->swafoto_thumb)
-                                            <img src="storage/{{ $data->swafoto_thumb }}" alt="">
-                                        @endif --}}
+                                    <div class="image-input-wrapper pulang w-200px h-200px border-1 border-secondary form-control">
+                                        @if ($data->swafoto_thumb_pulang)
+                                            <img src="{{asset('storage/'.$data->swafoto_thumb_pulang)}}" width="100%" alt="">
+                                        @endif
                                     </div>
                                     <!--end::Preview existing avatar-->
                                     <!--begin::Label-->
@@ -317,6 +321,12 @@
                 }
 
                 var handleControl = function() {
+                    $('[name="swafoto_datang"]').change(function () {
+                        $('.image-input-wrapper.datang img').remove();
+                    });
+                    $('[name="swafoto_pulang"]').change(function () {
+                        $('.image-input-wrapper.pulang img').remove();
+                    });
                     $("#btn-create").click(function(e) {
                         e.preventDefault();
 
