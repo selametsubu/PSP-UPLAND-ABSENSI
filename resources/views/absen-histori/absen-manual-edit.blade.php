@@ -1,7 +1,7 @@
 <x-app-full-layout>
     <x-slot name="page_title">Absen Manual</x-slot>
     <x-slot name="hide_sidebar"></x-slot>
-{{-- @dd($data) --}}
+
     <form id="app-form">
         <div class="d-none">
             <input type="text" name="created_by" value="{{ auth()->id() }}">
@@ -179,8 +179,8 @@
                 var map_pulang;
                 var marker_datang;
                 var marker_pulang;
-                var circle_datang;
-                var circle_pulang;
+                var drawingManager_datang;
+                var drawingManager_pulang;
                 var locations = [];
 
                 var initLocation = function(results, absenType) {
@@ -283,8 +283,46 @@
                         position: {
                             lat: lat,
                             lng: lng
-                        }
+                        },
+                        draggable: true
                     });
+
+                    drawingManager_datang = new google.maps.drawing.DrawingManager({
+                        drawingControl: true,
+                        drawingControlOptions: {
+                            position: google.maps.ControlPosition.TOP_CENTER,
+                            drawingModes: [
+                                google.maps.drawing.OverlayType.MARKER,
+                            ],
+                        },
+                        markerOptions: {
+                            draggable: true
+                        },
+                    });
+
+                    drawingManager_datang.setMap(map_datang);
+
+
+                    google.maps.event.addListener(drawingManager_datang, 'overlaycomplete', function(event) {
+                        marker_datang.setMap(null);
+                        var data = {
+                            type: event.type,
+                            draw: ''
+                        };
+
+                        marker_datang = event.overlay;
+                        data.draw = {
+                            lat: event.overlay.position.lat(),
+                            lng: event.overlay.position.lng(),
+                        }
+
+                        geocoder_datang.geocode({
+                            "latLng": new google.maps.LatLng(event.overlay.position.lat(), event.overlay.position.lng()),
+                        }, function(results, status) {
+                            initLocation(results, "datang");
+                            setLocationData(results[0], "datang");
+                        });
+                    })
                 }
 
                 var initMapPulang = function() {
@@ -316,8 +354,45 @@
                         position: {
                             lat: lat,
                             lng: lng
-                        }
+                        },
+                        draggable: true
                     });
+
+                    drawingManager_pulang = new google.maps.drawing.DrawingManager({
+                        drawingControl: true,
+                        drawingControlOptions: {
+                            position: google.maps.ControlPosition.TOP_CENTER,
+                            drawingModes: [
+                                google.maps.drawing.OverlayType.MARKER,
+                            ],
+                        },
+                        markerOptions: {
+                            draggable: true
+                        },
+                    });
+
+                    drawingManager_pulang.setMap(map_pulang);
+
+                    google.maps.event.addListener(drawingManager_pulang, 'overlaycomplete', function(event) {
+                        marker_pulang.setMap(null);
+                        var data = {
+                            type: event.type,
+                            draw: ''
+                        };
+
+                        marker_pulang = event.overlay;
+                        data.draw = {
+                            lat: event.overlay.position.lat(),
+                            lng: event.overlay.position.lng(),
+                        }
+
+                        geocoder_pulang.geocode({
+                            "latLng": new google.maps.LatLng(event.overlay.position.lat(), event.overlay.position.lng()),
+                        }, function(results, status) {
+                            initLocation(results, "pulang");
+                            setLocationData(results[0], "pulang");
+                        });
+                    })
                 }
 
                 var handleControl = function() {
@@ -378,7 +453,8 @@
                                 map_datang.zoom = 11;
                                 marker_datang = new google.maps.Marker({
                                     map: map_datang,
-                                    position: results[0].geometry.location
+                                    position: results[0].geometry.location,
+                                    draggable: true
                                 });
 
                                 locations = results;
@@ -403,7 +479,8 @@
                                 map_pulang.zoom = 11;
                                 marker_pulang = new google.maps.Marker({
                                     map: map_pulang,
-                                    position: results[0].geometry.location
+                                    position: results[0].geometry.location,
+                                    draggable: true
                                 });
 
                                 locations = results;
@@ -420,22 +497,11 @@
                 }
 
                 var clear = function(typeAbsen) {
-                    if (typeAbsen == 'datang') {
-                        if (marker_datang) {
-                            marker_datang.setMap(null);
-                        }
-                        if (marker_pulang) {
-                            marker_pulang.setMap(null);
-                        }
-                    }else{
-                        if (circle_datang) {
-                            circle_datang.setMap(null);
-                        }
-                        if (circle_pulang) {
-                            circle_pulang.setMap(null);
-                        }
+                    if (typeAbsen == 'datang' && marker_datang) {
+                        marker_datang.setMap(null);
+                    }else if(typeAbsen == 'pulang' && marker_pulang){
+                        marker_pulang.setMap(null);
                     }
-
                 }
 
                 var onDataSaved = function() {
