@@ -114,9 +114,13 @@ class AbsenHadirController extends Controller
 
     public function absenManualStore(Request $request)
     {
-        $request->validate([
-            'tgl'    => 'required|date|before:'.date('Y-m-d'),
-        ]);
+        $data = DB::select("select * from absen_sys_globalvar where varname='mulai_absen_manual'")[0];
+        if (date('d') < $data->val) {
+            return response()->json([
+                "message"=> "The given data was invalid.",
+                "errors"=> "Tidak bisa mengisi absen manual untuk saat ini"
+            ], 422);
+        }
 
         $data_datang =[
             'userid' => $request->userid,
