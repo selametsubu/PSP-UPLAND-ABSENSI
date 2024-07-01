@@ -114,6 +114,10 @@ class AbsenHadirController extends Controller
 
     public function absenManualStore(Request $request)
     {
+        $request->validate([
+            'tgl'    => 'required|date|before:'.date('Y-m-d'),
+        ]);
+
         $data_datang =[
             'userid' => $request->userid,
             'tgl' => Carbon::make($request->tgl),
