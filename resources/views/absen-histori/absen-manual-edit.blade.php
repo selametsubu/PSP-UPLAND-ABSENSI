@@ -7,11 +7,11 @@
             <input type="text" name="created_by" value="{{ auth()->id() }}">
             <input type="text" name="userid" value="{{ $user->userid }}">
             <input type="text" name="tgl" value="{{ $tgl }}">
-            <input type="text" name="status_spot" id="status_spot" value="0">
             <input type="text" name="lat_datang" id="lat_datang" value="{{ $data->lat_datang }}">
             <input type="text" name="lng_datang" id="lng_datang" value="{{ $data->lng_datang }}">
             <input type="text" name="lat_pulang" id="lat_pulang" value="{{ $data->lat_pulang }}">
             <input type="text" name="lng_pulang" id="lng_pulang" value="{{ $data->lng_pulang }}">
+            <input type="text" name="status_spot" id="status_spot" value="0">
         </div>
 
         <x-app-card>
@@ -181,7 +181,23 @@
                 var marker_pulang;
                 var drawingManager_datang;
                 var drawingManager_pulang;
+                var circle;
                 var locations = [];
+                var spotid = "{{ auth()->user()->spotid }}";
+                var spot;
+                var status_spot = @json(config('ref.status_spot'));
+
+                var getSpot = function() {
+                    $.ajax({
+                        type: "get",
+                        url: apiUrl + "/spot/" + spotid,
+                        dataType: "json",
+                        async: false,
+                        success: function(response) {
+                            spot = response;
+                        }
+                    });
+                }
 
                 var initLocation = function(results, absenType) {
                     if (absenType == 'datang') {
@@ -244,10 +260,12 @@
 
                 var setLocationData = function(data, absenType) {
                     if (absenType == 'datang') {
+                        handleSpot(data.geometry.location);
                         $("#alamat_datang").val(data.formatted_address);
                         $("#lat_datang").val(data.geometry.location.lat());
                         $("#lng_datang").val(data.geometry.location.lng());
                     }else{
+                        handleSpot(data.geometry.location);
                         $("#alamat_pulang").val(data.formatted_address);
                         $("#lat_pulang").val(data.geometry.location.lat());
                         $("#lng_pulang").val(data.geometry.location.lng());
@@ -263,6 +281,7 @@
                             center: latlng
                         }
                         map_datang = new google.maps.Map(document.getElementById('map_datang'), mapOptions);
+                        handleMapMarker('datang')
                         return;
                     }
 
@@ -287,42 +306,37 @@
                         draggable: true
                     });
 
-                    drawingManager_datang = new google.maps.drawing.DrawingManager({
-                        drawingControl: true,
-                        drawingControlOptions: {
-                            position: google.maps.ControlPosition.TOP_CENTER,
-                            drawingModes: [
-                                google.maps.drawing.OverlayType.MARKER,
-                            ],
-                        },
-                        markerOptions: {
-                            draggable: true
-                        },
-                    });
+                    handleMapMarker('datang')
+                }
 
-                    drawingManager_datang.setMap(map_datang);
-
-
-                    google.maps.event.addListener(drawingManager_datang, 'overlaycomplete', function(event) {
-                        marker_datang.setMap(null);
-                        var data = {
-                            type: event.type,
-                            draw: ''
-                        };
-
-                        marker_datang = event.overlay;
-                        data.draw = {
-                            lat: event.overlay.position.lat(),
-                            lng: event.overlay.position.lng(),
-                        }
-
-                        geocoder_datang.geocode({
-                            "latLng": new google.maps.LatLng(event.overlay.position.lat(), event.overlay.position.lng()),
-                        }, function(results, status) {
-                            initLocation(results, "datang");
-                            setLocationData(results[0], "datang");
+                var handleSpot = function (latlng) {
+                    if (spotid != '') {
+                        circle = new google.maps.Circle({
+                            map_datang,
+                            center: {
+                                lat: parseFloat(spot.lat),
+                                lng: parseFloat(spot.lng)
+                            },
+                            radius: parseFloat(spot.radius),
                         });
-                    })
+
+                        let bounds = circle.getBounds().contains( latlng );
+                        if (bounds === true) {
+                            let status = (status_spot.filter(row => {
+                                return row.status_spot === 1;
+                            }))[0];
+                            console.log("status: ", status);
+                            $("#status_spot").val(status.status_spot);
+                        } else {
+                            let status = (status_spot.filter(row => {
+                                return row.status_spot === 2;
+                            }))[0];
+
+                            $("#status_spot").val(status.status_spot);
+
+                            alertWarning('Anda berada diluar radius spot lokasi tugas anda.');
+                        }
+                    }
                 }
 
                 var initMapPulang = function() {
@@ -334,6 +348,7 @@
                             center: latlng
                         }
                         map_pulang = new google.maps.Map(document.getElementById('map_pulang'), mapOptions);
+                        handleMapMarker('pulang')
                         return;
                     }
 
@@ -358,41 +373,87 @@
                         draggable: true
                     });
 
-                    drawingManager_pulang = new google.maps.drawing.DrawingManager({
-                        drawingControl: true,
-                        drawingControlOptions: {
-                            position: google.maps.ControlPosition.TOP_CENTER,
-                            drawingModes: [
-                                google.maps.drawing.OverlayType.MARKER,
-                            ],
-                        },
-                        markerOptions: {
-                            draggable: true
-                        },
-                    });
+                    handleMapMarker('pulang')
+                }
 
-                    drawingManager_pulang.setMap(map_pulang);
-
-                    google.maps.event.addListener(drawingManager_pulang, 'overlaycomplete', function(event) {
-                        marker_pulang.setMap(null);
-                        var data = {
-                            type: event.type,
-                            draw: ''
-                        };
-
-                        marker_pulang = event.overlay;
-                        data.draw = {
-                            lat: event.overlay.position.lat(),
-                            lng: event.overlay.position.lng(),
-                        }
-
-                        geocoder_pulang.geocode({
-                            "latLng": new google.maps.LatLng(event.overlay.position.lat(), event.overlay.position.lng()),
-                        }, function(results, status) {
-                            initLocation(results, "pulang");
-                            setLocationData(results[0], "pulang");
+                var handleMapMarker = function(absenType) {
+                    if (absenType == 'datang') {
+                        drawingManager_datang = new google.maps.drawing.DrawingManager({
+                            drawingControl: true,
+                            drawingControlOptions: {
+                                position: google.maps.ControlPosition.TOP_CENTER,
+                                drawingModes: [
+                                    google.maps.drawing.OverlayType.MARKER,
+                                ],
+                            },
+                            markerOptions: {
+                                draggable: true
+                            },
                         });
-                    })
+
+                        drawingManager_datang.setMap(map_datang);
+
+                        google.maps.event.addListener(drawingManager_datang, 'overlaycomplete', function(event) {
+                            if (marker_datang != undefined) {
+                                marker_datang.setMap(null);
+                            }
+                            var data = {
+                                type: event.type,
+                                draw: ''
+                            };
+
+                            marker_datang = event.overlay;
+                            data.draw = {
+                                lat: event.overlay.position.lat(),
+                                lng: event.overlay.position.lng(),
+                            }
+
+                            geocoder_datang.geocode({
+                                "latLng": new google.maps.LatLng(event.overlay.position.lat(), event.overlay.position.lng()),
+                            }, function(results, status) {
+                                initLocation(results, "datang");
+                                setLocationData(results[0], "datang");
+                            });
+                        })
+                    }else{
+                        drawingManager_pulang = new google.maps.drawing.DrawingManager({
+                            drawingControl: true,
+                            drawingControlOptions: {
+                                position: google.maps.ControlPosition.TOP_CENTER,
+                                drawingModes: [
+                                    google.maps.drawing.OverlayType.MARKER,
+                                ],
+                            },
+                            markerOptions: {
+                                draggable: true
+                            },
+                        });
+
+                        drawingManager_pulang.setMap(map_pulang);
+
+                        google.maps.event.addListener(drawingManager_pulang, 'overlaycomplete', function(event) {
+                            if (marker_pulang != undefined) {
+                                marker_pulang.setMap(null);
+                            }
+                            var data = {
+                                type: event.type,
+                                draw: ''
+                            };
+
+                            marker_pulang = event.overlay;
+                            data.draw = {
+                                lat: event.overlay.position.lat(),
+                                lng: event.overlay.position.lng(),
+                            }
+
+                            geocoder_pulang.geocode({
+                                "latLng": new google.maps.LatLng(event.overlay.position.lat(), event.overlay.position.lng()),
+                            }, function(results, status) {
+                                initLocation(results, "pulang");
+                                setLocationData(results[0], "pulang");
+                            });
+                        })
+                    }
                 }
 
                 var handleControl = function() {
@@ -515,6 +576,7 @@
                         initMapDatang();
                         initMapPulang();
                         initLocation([]);
+                        getSpot();
 
                         handleLocation();
                         handleControl();
