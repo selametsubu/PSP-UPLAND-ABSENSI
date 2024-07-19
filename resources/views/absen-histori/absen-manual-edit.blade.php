@@ -22,7 +22,7 @@
             </x-slot>
             <hr>
             <x-slot name="toolbar">
-                <x-app-btn-back href="{{ route('absen.manual') }}"></x-app-btn-back>
+                <x-app-btn-back href="#" onclick="window.history.back();"></x-app-btn-back>
             </x-slot>
 
             <div class="row">
@@ -566,7 +566,7 @@
                 }
 
                 var onDataSaved = function() {
-                    location.href = "{{ route('absen.manual') }}";
+                    window.history.back();
                 }
 
 
