@@ -15,7 +15,7 @@
                     <x-app-input-text id="filter-tanggal"></x-app-input-text>
                 </div>
                 <div class="col-lg-3 mb-1">
-                    <x-app-input-text id="filter-global" placeholder="Cari..."></x-app-input-text>
+                    <x-app-input-text id="filter-global" placeholder="Cari..." value="{{$p_global}}"></x-app-input-text>
                 </div>
                 <div class="col-lg-1">
                     <a href="javascript:void(0)" class="btn btn-success" id="btn-filter">
@@ -53,11 +53,11 @@
                 var table;
                 var statusAbsenBgColor = @json(config('ref.absen_status_bgcolor'));
 
-
                 var loadLaporan = function() {
                     let filterTanggal = $("#filter-tanggal").val().split(" - ");
                     let p_date_from = filterTanggal[0];
                     let p_date_to = filterTanggal[1];
+                    let p_global = $('#filter-global').val();
 
                     $.ajax({
                         type: "get",
@@ -73,9 +73,12 @@
                         },
                         dataType: "json",
                         success: function(response) {
-                            initTable(response);
-
+                            initTable(response, p_date_from, p_date_to, p_global);
+                            if (table) {
+                                table.search(p_global).draw();
+                            }
                             blockUI.release();
+
                         },
                         error: function(xhr) {
                             alertError('Terjadi Kesalahan. Hubungi Administrator anda')
@@ -83,7 +86,7 @@
                     });
                 }
 
-                var initTable = function(data) {
+                var initTable = function(data, p_date_from, p_date_to, p_global) {
                     if (table) {
                         table.destroy();
                     }
@@ -114,7 +117,7 @@
                         tmpbody += `<tr>`;
                         tmpbody += `
                             <td width="150px" style="color:${row.tgl_hari_color}">
-                                <div class="w-100px"><a href="absen-manual/${row.userid}/${row.tgl}/edit">${dateFormat(row.tgl)}</a></div>
+                                <div class="w-100px"><a href="absen-manual/${row.userid}/${row.tgl}/edit?p_date_from=${p_date_from}&p_date_to=${p_date_to}&p_global=${p_global}">${dateFormat(row.tgl)}</a></div>
                             </td>
                             <td style="color:${row.tgl_hari_color}" class="border-end">${row.hari}</td>
                             <td style="color:${row.keterangan_color}">${row.keterangan ?? ''}</td>
@@ -162,6 +165,11 @@
                             }
                             let tmp = ``;
                             response.forEach(row => {
+                                if ({{$p_userid}} == row.userid) {
+                                    selected = 'selected';
+                                }else if(response.length >= 1){
+                                    selected = '';
+                                }
                                 tmp += `
                                 <option data-email="${row.email}" value="${row.userid}" ${selected}>
                                     ${row.fullname}
@@ -221,6 +229,7 @@
                     });
 
                     $("#filter-bulan, #filter-tahun").select2();
+                    $("#filter-tanggal").val("{{$p_date_from}}"+" - "+"{{$p_date_to}}")
                 }
 
                 var handleControl = function() {
@@ -228,11 +237,6 @@
                         e.preventDefault();
 
                         loadLaporan();
-
-                        if (table) {
-                            table.search($(this).val())
-                                .draw();
-                        }
                     });
                 }
 

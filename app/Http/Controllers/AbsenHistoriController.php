@@ -13,13 +13,20 @@ class AbsenHistoriController extends Controller
 
     public function absenManual()
     {
-        return view('absen-histori.absen-manual');
+        $p_userid = request('p_userid');
+        $p_date_from = request('p_date_from');
+        $p_date_to = request('p_date_to');
+        $p_global = request('p_global');
+        return view('absen-histori.absen-manual', compact('p_userid', 'p_date_from', 'p_date_to', 'p_global'));
     }
 
     public function absenManualEdit($userid, $tgl)
     {
         $user = \App\Models\User::findOrFail(request('userid'));
         $data = \DB::select('CALL pr_absen_manual(?, ?, ?)', [$userid, $tgl, $tgl])[0];
-        return view('absen-histori.absen-manual-edit', compact('data', 'user', 'tgl'));
+        $p_date_from = request('p_date_from');
+        $p_date_to = request('p_date_to');
+        $p_global = request('p_global');
+        return view('absen-histori.absen-manual-edit', compact('data', 'user', 'tgl', 'p_date_from', 'p_date_to', 'p_global'));
     }
 }

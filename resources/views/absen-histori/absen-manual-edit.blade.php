@@ -566,7 +566,7 @@
                 }
 
                 var onDataSaved = function() {
-                    window.history.back();
+                    location.href = "{{ route('absen.manual') }}"+`?p_userid={{$user->userid}}&p_date_from={{$p_date_from}}&p_date_to={{$p_date_to}}&p_global={{$p_global}}`
                 }
 
 
