@@ -165,9 +165,9 @@
                             }
                             let tmp = ``;
                             response.forEach(row => {
-                                if ({{$p_userid}} == row.userid) {
+                                if ("{{$p_userid}}" == row.userid) {
                                     selected = 'selected';
-                                }else if(response.length >= 1){
+                                }else if(response.length > 1){
                                     selected = '';
                                 }
                                 tmp += `
@@ -229,7 +229,9 @@
                     });
 
                     $("#filter-bulan, #filter-tahun").select2();
-                    $("#filter-tanggal").val("{{$p_date_from}}"+" - "+"{{$p_date_to}}")
+                    if ("{{$p_date_from}}" != "" && "{{$p_date_from}}" != "") {
+                        $("#filter-tanggal").val("{{$p_date_from}}"+" - "+"{{$p_date_to}}")
+                    }
                 }
 
                 var handleControl = function() {
