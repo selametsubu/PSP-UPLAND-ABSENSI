@@ -27,6 +27,23 @@ class AbsenHistoriController extends Controller
         $p_date_from = request('p_date_from');
         $p_date_to = request('p_date_to');
         $p_global = request('p_global');
+
+        if ($data->datang_status_spot == "Sesuai Spot") {
+            $data->datang_status_spot = 1;
+        }else if ($data->datang_status_spot == "Diluar Spot") {
+            $data->datang_status_spot = 2;
+        }else{
+            $data->datang_status_spot = 0;
+        }
+
+        if ($data->pulang_status_spot == "Sesuai Spot") {
+            $data->pulang_status_spot = 1;
+        }else if ($data->pulang_status_spot == "Diluar Spot") {
+            $data->pulang_status_spot = 2;
+        }else{
+            $data->pulang_status_spot = 0;
+        }
+        // return $data;
         return view('absen-histori.absen-manual-edit', compact('data', 'user', 'tgl', 'p_date_from', 'p_date_to', 'p_global'));
     }
 }

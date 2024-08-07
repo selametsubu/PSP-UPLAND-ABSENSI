@@ -11,7 +11,8 @@
             <input type="text" name="lng_datang" id="lng_datang" value="{{ $data->lng_datang }}">
             <input type="text" name="lat_pulang" id="lat_pulang" value="{{ $data->lat_pulang }}">
             <input type="text" name="lng_pulang" id="lng_pulang" value="{{ $data->lng_pulang }}">
-            <input type="text" name="status_spot" id="status_spot" value="0">
+            <input type="text" name="status_spot_datang" id="status_spot_datang" value="{{ $data->datang_status_spot ?? 0 }}">
+            <input type="text" name="status_spot_pulang" id="status_spot_pulang" value="{{ $data->pulang_status_spot ?? 0 }}">
         </div>
 
         <x-app-card>
@@ -181,11 +182,13 @@
                 var marker_pulang;
                 var drawingManager_datang;
                 var drawingManager_pulang;
-                var circle;
+                var circle_datang;
+                var circle_pulang;
                 var locations = [];
                 var spotid = "{{ auth()->user()->spotid }}";
                 var spot;
-                var status_spot = @json(config('ref.status_spot'));
+                var status_spot_datang = @json(config('ref.status_spot'));
+                var status_spot_pulang = @json(config('ref.status_spot'));
 
                 var getSpot = function() {
                     $.ajax({
@@ -260,12 +263,12 @@
 
                 var setLocationData = function(data, absenType) {
                     if (absenType == 'datang') {
-                        handleSpot(data.geometry.location);
+                        handleSpot(data.geometry.location, absenType);
                         $("#alamat_datang").val(data.formatted_address);
                         $("#lat_datang").val(data.geometry.location.lat());
                         $("#lng_datang").val(data.geometry.location.lng());
                     }else{
-                        handleSpot(data.geometry.location);
+                        handleSpot(data.geometry.location, absenType);
                         $("#alamat_pulang").val(data.formatted_address);
                         $("#lat_pulang").val(data.geometry.location.lat());
                         $("#lng_pulang").val(data.geometry.location.lng());
@@ -309,32 +312,50 @@
                     handleMapMarker('datang')
                 }
 
-                var handleSpot = function (latlng) {
+                var handleSpot = function (latlng, absenType) {
                     if (spotid != '') {
-                        circle = new google.maps.Circle({
-                            map_datang,
-                            center: {
-                                lat: parseFloat(spot.lat),
-                                lng: parseFloat(spot.lng)
-                            },
-                            radius: parseFloat(spot.radius),
-                        });
 
-                        let bounds = circle.getBounds().contains( latlng );
-                        if (bounds === true) {
-                            let status = (status_spot.filter(row => {
-                                return row.status_spot === 1;
-                            }))[0];
-                            console.log("status: ", status);
-                            $("#status_spot").val(status.status_spot);
-                        } else {
-                            let status = (status_spot.filter(row => {
-                                return row.status_spot === 2;
-                            }))[0];
+                        if (absenType == 'datang') {
+                            // create spot
+                            circle_datang = new google.maps.Circle({
+                                map_datang,
+                                center: {
+                                    lat: parseFloat(spot.lat),
+                                    lng: parseFloat(spot.lng)
+                                },
+                                radius: parseFloat(spot.radius),
+                            });
 
-                            $("#status_spot").val(status.status_spot);
+                            // checking spot
+                            let bounds = circle_datang.getBounds().contains( latlng );
+                            if (bounds === true) {
+                                $("#status_spot_datang").val(1);
+                            } else {
+                                $("#status_spot_datang").val(2);
+                                alertWarning('Anda berada diluar radius spot lokasi tugas anda.');
+                            }
+                            console.log($("#status_spot_datang").val());
 
-                            alertWarning('Anda berada diluar radius spot lokasi tugas anda.');
+                        }else{
+                            // create spot
+                            circle_pulang = new google.maps.Circle({
+                                map_pulang,
+                                center: {
+                                    lat: parseFloat(spot.lat),
+                                    lng: parseFloat(spot.lng)
+                                },
+                                radius: parseFloat(spot.radius),
+                            });
+
+                            // checking spot
+                            let bounds = circle_pulang.getBounds().contains( latlng );
+                            if (bounds === true) {
+                                $("#status_spot_pulang").val(1);
+                            } else {
+                                $("#status_spot_pulang").val(2);
+                                alertWarning('Anda berada diluar radius spot lokasi tugas anda.');
+                            }
+                            console.log($("#status_spot_pulang").val());
                         }
                     }
                 }
