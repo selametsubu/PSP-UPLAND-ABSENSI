@@ -95,7 +95,7 @@
     </div>
 
     <x-slot name="scripts">
-        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <script src="{{ asset('assets/plugins/custom/apexcharts/apexcharts.min.js') }}"></script>
 
         <script>
             "use strict";
